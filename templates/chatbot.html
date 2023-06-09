@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laslo Chatbot</title>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon_io/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon_io/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon_io/favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='favicon_io//site.webmanifest') }}"> 
+
+    <link rel="stylesheet" href="static/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+
+    {{ turbo() }}
+</head>
+
+<body>
+    <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg navbar-light d-none d-sm-block d-block d-md-none">
+            <div class="container-fluid">
+                <div class="logo2"><img src=" {{ url_for('static', filename='images/laslo.png') }}" alt="Laslo"></div> 
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('index') }}">Dashboard</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link active" href="">Laslo Chatbot</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('loginadminax') }}">Admin Access</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+        <div class="row mainrow">
+            <div class="col-lg-2 col-md-2 d-none d-md-block taskbar">
+                <div class="logo"><img src=" {{ url_for('static', filename='images/laslo.png') }}" alt="Laslo"></div> 
+                <a href="{{ url_for('index') }}" class="taskbtn">
+                    Dashboard
+                </a>
+                <a href="" class="taskbtn active">
+                    Laslo Chatbot
+                </a>
+                <a href="{{ url_for('loginadminax') }}" class="taskbtn">
+                    Admin Access
+                </a>
+            </div>
+            <div class="col-lg-10  col-md-10  col-sm-12 contents">
+                <div class="row sectiontitle">
+                    <h1>Library Assist Chatbot</h1>
+                    <div class="line"></div>
+                </div>
+                <div class="row dashboardupper">
+                    <div class="col-1 d-none d-md-block"></div>
+                    <div class="col-lg-10  col-md-10  col-sm-12">
+                        <div class="row" id="messagearea">
+                            <p class="botresponse">Hello! I'm Laslo, your Library Assistant. What can I do for you today? Press the ⭐ button get started with our built-in features! <br><br>  
+                                <span class="font-weight-bold" onclick="choiceprompt()"> Get Started </span>
+                                <br>
+                                <br>
+                                <img src="https://media3.giphy.com/media/xT77Y1T0zY1gR5qe5O/giphy.gif?cid=ecf05e47atz9cr9r7cnxy7fcuypebtj0z1ue84llicns0gaq&rid=giphy.gif&ct=g" alt="">
+                            </p>
+                        </div>
+                        <div class="row inputarea">
+                            <div class="col-1 star" onclick="choiceprompt()" data-toggle="tooltip" data-placement="top" title="Built-in Features">
+                            <h4>⭐</h4>
+                            </div>
+                            <div class="col-11">
+                                <!--  -->
+                                <form action="{{url_for('postresponsechat')}}" method="post">
+                                    <input type="text" id="text" name="usermessage" placeholder="Your Message Here!" class="usermsg" onfocus="this.value=''">
+                                    <button type="submit" id="send" class="btn" onclick="appenduserinput()"> Send</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-none d-md-block"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        var messagearea = document.getElementById('messagearea');
+        const books = [ "The Hobbit by JRR Tolkien", "The Two Towers by JRR Tolkien", "Alice in Wonderland by Lewis Carroll",
+                      "The stranger by Albert Camus", "The Count of Monte Cristo by Alexandre Dumas", "Watership Down by Richard Adams",
+                      "The Three Musketeers by Alexandre Dumas", "Treasure Island by Robert Louis Stevenson", "Artemis Fowl and the Lost Colony by Eoin Colfer",
+                      "Allegiant by Veronica Roth", "The Hunger Games: Book 1 by Suzanne Collins", "Divergent by Veronica Roth",
+                      "New Moon by Stephenie Meyer", "The Maze Runner by James Dashner", "Insurgent by Veronica Roth",
+                      "Looking for Alaska by John Green", "Paper Towns by John Green", "City of Glass (Mortal Instruments, the) by Cassandra Clare",
+                     "The Time Machine by H G Wells", "11/22/63 by Stephen King", "Anthem (Centennial Edition) by Ayn Rand" ] 
+                     
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+        
+    
+        function rng(){
+            var index = Math.floor(Math.random()*20)
+            return index
+        }
+    
+        function getuserinput(){
+            var messagehey = document.getElementById("text").value;
+            return messagehey;
+        }
+    
+        function chatbott(){
+         /*   fetch('/postresponsechat')
+                .then(function (response) {
+                    return response.json();
+                }).then(function (text) {
+                    console.log('GET response:');
+                    console.log(text);
+                })*/
+        }
+
+       
+        function appenduserinput(){
+            var message = getuserinput();
+            if (message == ""){
+                alert("Message Body can't be empty when sending a message!");
+                return
+            }
+            var usermessagebody = document.createElement("p");
+            usermessagebody.innerText = message;
+            usermessagebody.className = 'useresponse';
+            messagearea.append(usermessagebody);
+            //chatbott();
+            messagearea.scrollTop = messagearea.scrollHeight;
+            
+        }
+        function findbook(){
+            var book = getuserinput();
+            // add filter for no response
+            var not = "Unfortunately, " + book + " is not available in Manila City Library."
+            var yes =  book + " is available in Manila City Library."
+            var findresponse = document.createElement("p");
+    
+            if (!books.includes(book)){
+                    findresponse.innerText = not;
+                } else {
+                    findresponse.innerText = yes;
+                }
+            
+            findresponse.className = 'botresponse';
+            messagearea.appendChild(findresponse);
+            messagearea.scrollTop = messagearea.scrollHeight;   
+        }
+        function inputprompt(){
+            var checkmessagebody = "Please Enter the Title and the Author of the book that you want to find. \n\n Example: The Hobbit by JRR Tolkien \n\n After Entering the Name of the book, press Find.";
+            var inputprompt = document.createElement("p");
+            inputprompt.innerText = checkmessagebody;
+            inputprompt.className = 'botresponse';
+            messagearea.appendChild(inputprompt);
+            
+    
+            var find = document.createElement("p");
+            find.innerText = "Find";
+            find.className = "botresponse choices";
+    
+            messagearea.appendChild(find);
+    
+            find.addEventListener('click', findbook);
+            messagearea.scrollTop = messagearea.scrollHeight;
+        }
+        
+        function recommendbook(){
+            const indexes = [];
+            while (indexes.length < 5){
+                const index = rng();
+                if (!indexes.includes(index)){
+                    indexes.push(index);
+                }
+            }
+            var recommend = "Based on the recent additions to the library collection, I recommend the following books: \n\n" + books[indexes[0]] + "\n" + books[indexes[1]] + "\n" + books[indexes[2]] + "\n" + books[indexes[3]] + "\n" + books[indexes[4]]
+            var messagebody = document.createElement("p");
+            messagebody.innerText = recommend
+            messagebody.className = 'botresponse';
+            messagearea.appendChild(messagebody);
+            messagearea.scrollTop = messagearea.scrollHeight;
+        }
+        function contactprompt(){
+            var contactmsg = document.createElement("p");
+            contactmsg.innerText = "Your default mail service will now open.";
+            contactmsg.className = "botresponse";
+            messagearea.appendChild(contactmsg);
+            messagearea.scrollTop = messagearea.scrollHeight;
+        }
+    
+        function choiceprompt(){
+            var recom = "Recommend me Books!";
+            var find = "Check if this book is Available";
+            var contact = "Contact our Librarian";
+    
+            var recomchz = document.createElement("p");
+            recomchz.innerText = recom;
+            recomchz.className = "botresponse choices";
+    
+            var findchz =  document.createElement("p");
+            findchz.innerText = find
+            findchz.className = "botresponse choices";
+    
+            var contactchz = document.createElement("a");
+            contactchz.innerText = contact
+            contactchz.className = "botresponse choices";
+    
+            var linkchz = document.createElement("a");
+            linkchz.innerText = "Manila City Library Website";
+            linkchz.className = "botresponse choices";
+    
+            messagearea.appendChild(recomchz);
+            messagearea.appendChild(findchz);
+            messagearea.appendChild(contactchz);
+            messagearea.appendChild(linkchz);
+    
+            recomchz.addEventListener('click', recommendbook);
+            findchz.addEventListener('click', inputprompt);
+            contactchz.href = "mailto:citylibrary@manila.gov.ph";
+            contactchz.addEventListener('click', contactprompt);
+            linkchz.href = "https://sites.google.com/view/manilacitylibrary/home?authuser=0";
+            messagearea.scrollTop = messagearea.scrollHeight;
+    
+        }
+    </script>
+</body>
+</html>
